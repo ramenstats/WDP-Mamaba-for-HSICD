@@ -89,42 +89,6 @@ def save_change_map(prediction_grid, gt_grid, filename_prefix="result"):
     plt.close()
     print(f"   [Saved] Maps saved to {filename_prefix}_maps.png")
 
-# ============================================================
-# 2. DATA LOADING
-# ============================================================
-
-def load_data(root_dir="./"):
-    """Load HSI Data. Adjust filenames as per your dataset."""
-    try:
-        # Update these filenames to match your local files exactly
-        d1 = sio.loadmat(os.path.join(root_dir, "river_before.mat"))
-        d2 = sio.loadmat(os.path.join(root_dir, "river_after.mat"))
-        gt = sio.loadmat(os.path.join(root_dir, "river_groundtruth.mat"))
-        
-        # Adjust keys based on specific dataset (River, Farmland, etc.)
-        # Common keys: 'river_before', 't1', 'image1'
-        key1 = [k for k in d1.keys() if not k.startswith('__')][0]
-        key2 = [k for k in d2.keys() if not k.startswith('__')][0]
-        key_gt = [k for k in gt.keys() if not k.startswith('__')][0]
-        
-        x1 = d1[key1].astype(np.float32)
-        x2 = d2[key2].astype(np.float32)
-        y = gt[key_gt].astype(np.int64)
-        
-        # Handle simple binary GT (assume 255=Changed, 0=Unchanged)
-        # If GT is already 0/1, this line is safe
-        if y.max() > 1:
-            y[y == 255] = 1
-            y[y != 1] = 0
-            
-        return x1, x2, y
-        
-    except FileNotFoundError:
-        print("   [!] Dataset files not found. Generating RANDOM DATA for verification.")
-        x1 = np.random.rand(200, 200, 30).astype(np.float32)
-        x2 = np.random.rand(200, 200, 30).astype(np.float32)
-        y = np.random.randint(0, 2, (200, 200))
-        return x1, x2, y
 
 def normalize_data(x):
     """Min-Max Normalization."""
